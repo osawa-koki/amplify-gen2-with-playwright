@@ -1,6 +1,6 @@
 import { CognitoIdentityProviderClient } from "@aws-sdk/client-cognito-identity-provider";
 import awsconfig from "@/amplify_outputs.json";
-import cypressEnv from "@/cypress.env.json";
+import playwrightEnv from "@/playwright.env.json";
 
 import updateUserPool from "./updateUserPool";
 import createUser from "./createUser";
@@ -21,13 +21,13 @@ const cognitoIdentityProviderClient = new CognitoIdentityProviderClient({
   });
   await createUser({
     cognitoIdentityProviderClient,
-    email: cypressEnv.USERNAME,
-    password: cypressEnv.PASSWORD,
+    email: playwrightEnv.USERNAME,
+    password: playwrightEnv.PASSWORD,
   });
   await getToken({
     cognitoIdentityProviderClient,
-    username: cypressEnv.USERNAME,
-    password: cypressEnv.PASSWORD,
+    username: playwrightEnv.USERNAME,
+    password: playwrightEnv.PASSWORD,
     userPoolClientId,
   });
 })()
