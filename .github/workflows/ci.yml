@@ -4,20 +4,53 @@ on: [ push ]
 
 jobs:
   ci:
-    timeout-minutes: 60
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     strategy:
       matrix:
-        node-version: [22.x]
+        node-version: [20.x]
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Configure AWS credentials
+        id: creds
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
+      - name: Use Node.js
+        uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node-version }}
+      - name: Cache node_modules
+        id: node_modules_cache_id
+        uses: actions/cache@v4
+        with:
+          path: ./node_modules/
+          key: node-modules-${{ matrix.node-version }}-${{ hashFiles('./**/package-lock.json') }}
       - name: Install dependencies
-        run: npm ci
+        if: steps.node_modules_cache_id.outputs.cache-hit != 'true'
+        run: npm ci --prefer-offline
       - name: Install Playwright Browsers
         run: npx playwright install --with-deps
+      - name: Install packages
+        run: npm install --global wait-on pm2
+      - name: Create Sandbox
+        run: pm2 start 'npx ampx sandbox --identifier e2e-gh-$(date +"%H%M%S") >> ./amplify-sandbox.log' --name "amplify-sandbox"
+      - name: Wait for Sandbox to be ready
+        run: |
+          wait-on ./amplify_outputs.json
+          while ! grep -q '"auth"' ./amplify_outputs.json || ! grep -q '"data"' ./amplify_outputs.json; do
+            diff ./amplify-sandbox.log.tmp ./amplify-sandbox.log | grep '^>'|| true
+            cp ./amplify-sandbox.log ./amplify-sandbox.log.tmp
+            sleep 10
+          done
+      - name: Create env file
+        run: echo '${{ secrets.PLAYWRIGHT_ENV_JSON }}' >> ./playwright.env.json
+      - name: Build Next.js app
+        run: npm run build
+      - name: Setup
+        run: npm run scripts:run:setup
       - name: Run Playwright tests
         run: npx playwright test
       - uses: actions/upload-artifact@v4
@@ -26,3 +59,6 @@ jobs:
           name: playwright-report
           path: ./playwright-report/
           retention-days: 30
+      - name: Stop Sandbox
+        if: ${{ !cancelled() }}
+        run: pm2 kill
