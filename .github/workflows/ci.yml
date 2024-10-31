@@ -47,6 +47,8 @@ jobs:
           done
       - name: Create env file
         run: echo '${{ secrets.PLAYWRIGHT_ENV_JSON }}' >> ./playwright.env.json
+      - name: Cat env file
+        run: cat ./playwright.env.json
       - name: Setup
         run: npm run scripts:run:setup
       - name: Build Next.js app
