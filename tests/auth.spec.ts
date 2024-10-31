@@ -1,5 +1,7 @@
 import { test, expect } from '@playwright/test';
 
+test.use({ storageState: './storageState.empty.json' });
+
 test.beforeEach(async ({ page }) => {
   await page.goto('/');
 });
