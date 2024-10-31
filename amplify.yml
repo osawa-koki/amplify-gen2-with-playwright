@@ -9,7 +9,9 @@ frontend:
   phases:
     build:
       commands:
+        - mv ./playwright.env.json.example ./playwright.env.json
         - npm run build
+        - mv ./playwright.env.json ./playwright.env.json.example
   artifacts:
     baseDirectory: .next
     files:
