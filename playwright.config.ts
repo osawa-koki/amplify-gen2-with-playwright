@@ -16,26 +16,6 @@ Object.entries(playwrightEnv).forEach(([key, value]) => {
 
 const isCi = !!process.env.CI;
 
-const projects = isCi ? [
-  {
-    name: 'chromium',
-    use: { ...devices['Desktop Chrome'] },
-  },
-  {
-    name: 'firefox',
-    use: { ...devices['Desktop Firefox'] },
-  },
-  {
-    name: 'webkit',
-    use: { ...devices['Desktop Safari'] },
-  }
-] : [
-  {
-    name: 'chromium',
-    use: { ...devices['Desktop Chrome'] },
-  }
-];
-
 /**
  * See https://playwright.dev/docs/test-configuration.
  */
@@ -58,10 +38,23 @@ export default defineConfig({
 
     /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
     trace: 'on-first-retry',
+
+    storageState: './storageState.json',
   },
 
+  expect: {
+    timeout: 10000,
+  },
+
+  // globalSetup: './tests/global.setup.ts',
+
   /* Configure projects for major browsers */
-  projects,
+  projects: [
+    {
+      name: 'chromium',
+      use: { ...devices['Desktop Chrome'] },
+    }
+  ],
 
   /* Run your local dev server before starting the tests */
   webServer: {

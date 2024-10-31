@@ -1,5 +1,3 @@
-import fs from 'fs';
-
 import {
   CognitoIdentityProviderClient,
   InitiateAuthCommand,
@@ -29,14 +27,7 @@ export default async function getToken(props: Props) {
     if (authResult == null) {
       throw new Error("AuthenticationResult is null");
     }
-    const jsonString = fs.readFileSync('./playwright.env.json', 'utf8');
-    const json = JSON.parse(jsonString);
-    json.ID_TOKEN = authResult.IdToken;
-    json.ACCESS_TOKEN = authResult.AccessToken;
-    json.REFRESH_TOKEN = authResult.RefreshToken;
-    fs.writeFileSync('./playwright.env.json', JSON.stringify(json, null, 2));
-    console.log("success:", authResult);
-    return
+    return authResult;
   } catch (error) {
     console.error("error:", error);
     throw error;
