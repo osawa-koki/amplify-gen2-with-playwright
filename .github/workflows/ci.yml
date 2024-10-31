@@ -46,7 +46,7 @@ jobs:
             sleep 10
           done
       - name: Create env file
-        run: echo '${{ secrets.PLAYWRIGHT_ENV_JSON }}' >> ./playwright.env.json
+        run: echo '${{ secrets.PLAYWRIGHT_ENV_JSON }}' > ./playwright.env.json
       - name: Cat env file
         run: cat ./playwright.env.json
       - name: Setup
