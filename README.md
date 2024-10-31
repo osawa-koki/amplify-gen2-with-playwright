@@ -9,6 +9,9 @@
 
 ## 実行方法
 
+`./playwright.env.json.example`をコピーして`./playwright.env.json`を作成します。  
+中身は適切に設定してください。  
+
 DevContainerに入り、以下のコマンドを実行します。  
 
 ```bash
@@ -31,6 +34,19 @@ npx playwright test
 ```bash
 npm run dev
 ```
+
+## GitHub Actionsの準備
+
+以下のデータをシークレットに登録します。  
+
+| シークレット名 | 説明 |
+| --- | --- |
+| AWS_ACCESS_KEY_ID | AWSのアクセスキーID |
+| AWS_SECRET_ACCESS_KEY | AWSのシークレットアクセスキー |
+| AWS_REGION | AWSのリージョン |
+| PLAYWRIGHT_ENV_JSON | `./playwright.env.json`の中身をJSON形式で指定 |
+
+CIワークフローは手動で実行する必要があります。  
 
 ## メモ
 
